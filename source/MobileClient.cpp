@@ -31,6 +31,7 @@ namespace
         {       "idle"      ,       "call"          ,       "YES"                           },
         {       "idle"      ,       "setName"       ,       "YES"                           },
         {       "idle"      ,       "register"      ,       "client alredy registered"      },
+        {       "idle"      ,       "unregister"    ,       "YES"                           },
 
         {       ""          ,       "call"          ,       "client not registered"         },
         {       ""          ,       "setName"       ,       "YES"                           },
@@ -199,4 +200,24 @@ namespace MobileClient_ns
 
         }        
     };
+
+    void MobileClient::unregister()
+    {
+        if (stateCheck(_state, "unregister", stateDiagram))
+        {   
+            _agent->changeData(concatXpathToIncomingNumber(_number), "", "delete");
+            
+            _agent->changeData(concatXpathToNumberKey(_number), "", "delete");
+
+            _agent->closeSysrepo();
+            _agent.reset();
+            
+            _name.erase();
+            _number.erase();
+            _incomingNumber.erase();
+            _state.erase();
+            _friendNumber.erase();           
+
+        }
+    }
 };

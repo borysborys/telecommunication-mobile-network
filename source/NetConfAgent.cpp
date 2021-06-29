@@ -29,6 +29,16 @@ namespace NetConfAgent_ns
         return true;
     };
 
+    bool NetConfAgent::closeSysrepo()
+    {
+        _sess->session_stop();
+        _sess.reset();
+        _conn.reset();
+        _subscribe.reset();
+
+        return true;
+    }
+
     bool NetConfAgent::subscribeForModelChandes(const string & strXpath, MobileClient_ns::MobileClient &mobClient)
     {       
         const char *path = strXpath.c_str();
@@ -97,26 +107,48 @@ namespace NetConfAgent_ns
 
     };
 
-    bool NetConfAgent::changeData(const string &str_xpath, const string &str_entry)
+    bool NetConfAgent::changeData(const string &str_xpath, const string &str_entry, const string &param)
     {
-
-        try
+        if (param == "change")
         {
-            const char *xpath = str_xpath.c_str();
-            const char *entry = str_entry.c_str();
+            try
+            {
+                const char *xpath = str_xpath.c_str();
+                const char *entry = str_entry.c_str();
 
-            auto value = std::make_shared<sysrepo::Val>((char *)entry);
+                auto value = std::make_shared<sysrepo::Val>((char *)entry);
 
-            _sess->set_item(xpath, value);
-            _sess->apply_changes();
+                _sess->set_item(xpath, value);
+                _sess->apply_changes();
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << endl;
+                return false;
+            }
+            
+            return true;
         }
-        catch(const std::exception& e)
+        if (param == "delete")
         {
-            std::cerr << e.what() << endl;
-            return false;
+            try
+            {
+                const char *xpath = str_xpath.c_str();
+                const char *entry = str_entry.c_str();
+
+                auto value = std::make_shared<sysrepo::Val>((char *)entry);
+
+                _sess->delete_item(xpath);
+                _sess->apply_changes();
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << endl;
+                return false;
+            }
+            
+            return true;
         }
-        
-        return true;
 
     };
 

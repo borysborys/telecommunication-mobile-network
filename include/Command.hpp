@@ -60,4 +60,10 @@ class rejectCommand : public Command
     void execute();
 };
 
+class unregisterCommand : public Command
+{
+    using Command::Command;
+    void execute();
+};
+
 #endif  

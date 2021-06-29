@@ -17,6 +17,7 @@ namespace MobileClient_ns
         void call(string & number);
         void answer();
         void reject();
+        void unregister();
 
         private:
         string _name;

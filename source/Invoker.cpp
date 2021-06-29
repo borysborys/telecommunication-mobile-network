@@ -14,7 +14,9 @@ namespace
         {   "call"          ,       1       },
         {   "answer"        ,       0       },
         {   "reject"        ,       0       },
+        {   "unregister"    ,       0       },
         {   "exit"          ,       0       }
+
     };
 
     shared_ptr<MobileClient_ns::MobileClient> ptr (new MobileClient_ns::MobileClient); /////TODO: MOVE TO CONSTRUCTOR
@@ -25,7 +27,8 @@ namespace
         {   "name"          ,       new nameCommand(ptr)        },
         {   "call"          ,       new callCommand(ptr)        },
         {   "answer"        ,       new answerCommand(ptr)      },
-        {   "reject"        ,       new rejectCommand(ptr)      }
+        {   "reject"        ,       new rejectCommand(ptr)      },
+        {   "unregister"    ,       new unregisterCommand(ptr)  }
     };
 
     void parseInput(vector<string> &input)

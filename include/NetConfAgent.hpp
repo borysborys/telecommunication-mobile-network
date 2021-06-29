@@ -24,6 +24,10 @@ namespace NetConfAgent_ns
         */
         bool initSysrepo();
         /*
+        *@brief closes sysrepo session
+        */
+        bool closeSysrepo();
+        /*
         *@brief prints all changed in the selected YANG module to console
         *
         *@param str_module_name name of the module of interest
@@ -42,15 +46,17 @@ namespace NetConfAgent_ns
         */
         bool fetchData(const string &str_xpath, string &str_value, sr_datastore_t ds = SR_DS_RUNNING);
         /*
-        *@brief changes data value in the selected xpath (config-true data only)
+        *@brief changes or deletes data value in the selected xpath (config-true data only)
         *
         *@param str_xpath xpath to data to be changed
         * 
         *@param str_entry entry to be pushed for the selected xpath
+        *
+        *@param param change or delete
         * 
         *@return true if succedes, otherwise- false
         */        
-        bool changeData(const string &str_xpath, const string &str_entry);
+        bool changeData(const string &str_xpath, const string &str_entry, const string &param = "change");
         /*
         *@brief registers on operational data provision
         *

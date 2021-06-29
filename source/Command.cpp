@@ -54,3 +54,8 @@ void rejectCommand::execute()
 {
     _mobClient ->reject();
 };
+
+void unregisterCommand::execute()
+{
+    _mobClient ->unregister();
+};
