@@ -9,7 +9,16 @@ namespace MobileClient_ns
 {
     class MobileClient
     {
-        public: 
+
+        public:
+
+        MobileClient();
+
+        MobileClient(unique_ptr<NetConfAgent_ns::NetConfAgent>);
+
+
+
+         
         void setName(string &name);       
         void registerClient(string &number);
         void handleOperData(string &name);
@@ -18,6 +27,8 @@ namespace MobileClient_ns
         void answer();
         void reject();
         void unregister();
+
+        string getName();
 
         private:
         string _name;

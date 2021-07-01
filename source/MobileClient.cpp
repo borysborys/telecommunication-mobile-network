@@ -25,6 +25,8 @@ namespace
         return ("/mobile-network:core/subscribers[number=\"" + number + "\"]/incomingNumber");
     };
   
+  //  map<string, vector<string>> mymap;        boost -ok
+
     vector<vector<string>> stateDiagram =
     {   //      state       |       operation       |       is allowed?                     //
 
@@ -42,7 +44,7 @@ namespace
         {       "busy"      ,       "register"      ,       "not allowed"                   },
         {       "busy"      ,       "reject"        ,       "YES"                           },
 
-        {       "active"    ,       "call"          ,       "YES"                           },
+        {       "active"    ,       "call"          ,       "can't call"                    },
         {       "active"    ,       "setName"       ,       "YES"                           },
         {       "active"    ,       "register"      ,       "client alredy registered"      },
         {       "active"    ,       "answer"        ,       "YES"                           },
@@ -75,6 +77,17 @@ namespace
 
 namespace MobileClient_ns
 {
+
+    MobileClient::MobileClient()
+    {
+        _agent = make_unique<NetConfAgent_ns::NetConfAgent>();
+    }
+
+    MobileClient::MobileClient(unique_ptr<NetConfAgent_ns::NetConfAgent> ptr_agent)
+    {
+        _agent = move(ptr_agent);
+    }
+
     void MobileClient::setName(string &name)
     {
         if (stateCheck(_state, "setName", stateDiagram))
@@ -91,15 +104,21 @@ namespace MobileClient_ns
 
             _state = "idle";
 
-            _agent = make_unique<NetConfAgent_ns::NetConfAgent>();      ///TODO : put to contructor
+            //_agent = make_unique<NetConfAgent_ns::NetConfAgent>();      ///TODO : put to contructor
 
-            _agent->initSysrepo();
-
-            _agent->changeData(concatXpathToState(_number), _state);
-
-            _agent->registerOperData(concatXpathToUserName(_number),*this);
-            
-            _agent->subscribeForModelChandes(concatXpathToNumberKey(_number), *this);
+            if(_agent->initSysrepo())
+            {
+                if (_agent->changeData(concatXpathToState(_number), _state))
+                {
+                    if(_agent->registerOperData(concatXpathToUserName(_number),*this))
+                    {
+                       if( _agent->subscribeForModelChandes(concatXpathToNumberKey(_number), *this))
+                       {
+                           cout << "registered OK" << endl;
+                       }
+                    }
+                }
+            }     
         }
     };
 
@@ -154,7 +173,7 @@ namespace MobileClient_ns
             }
             else if (_agent->fetchData(concatXpathToState(_friendNumber), friendState))
             {
-                 cout << "calling " << _friendNumber << " ..." << endl;
+                cout << "calling " << _friendNumber << " ..." << endl;
                 if (friendState == "idle" )
                 {                   
                     _agent->changeData(concatXpathToState(_number), "active");
@@ -191,9 +210,9 @@ namespace MobileClient_ns
             _agent->changeData(concatXpathToState(_incomingNumber), "idle");
 
             //case : you are the caller and rejecting
-            _agent->changeData(concatXpathToIncomingNumber(_friendNumber), "");   /// TODO: CHANGE DATA- DELETE ITEM
+            _agent->changeData(concatXpathToIncomingNumber(_friendNumber), "", "delete");   /// TODO: CHANGE DATA- DELETE ITEM
             _agent->changeData(concatXpathToState(_friendNumber), "idle");  
-            _agent->changeData(concatXpathToIncomingNumber(_number), "");        /// TODO: CHANGE DATA- DELETE ITEM
+            _agent->changeData(concatXpathToIncomingNumber(_number), "", "delete");        /// TODO: CHANGE DATA- DELETE ITEM
             
             ///in any way:
             _agent->changeData(concatXpathToState(_number), "idle");                       
@@ -219,5 +238,9 @@ namespace MobileClient_ns
             _friendNumber.erase();           
 
         }
+    }
+
+    string MobileClient::getName(){
+        return _name;
     }
 };

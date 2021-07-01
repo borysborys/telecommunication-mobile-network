@@ -1,4 +1,3 @@
-
 commutator_includes = include_directories('../include')
 
 commutator_sources = [

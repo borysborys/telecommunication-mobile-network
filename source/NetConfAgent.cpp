@@ -41,48 +41,57 @@ namespace NetConfAgent_ns
 
     bool NetConfAgent::subscribeForModelChandes(const string & strXpath, MobileClient_ns::MobileClient &mobClient)
     {       
-        const char *path = strXpath.c_str();
 
-        auto cb = [&mobClient](sysrepo::S_Session session, const char *module_name, const char *xpath, sr_event_t event, uint32_t request_id) {
-            char change_path[MAX_LEN];        
+        try
+            {       
+            const char *path = strXpath.c_str();
 
-                if (event == SR_EV_DONE)
-                {                    
-                    snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
+            auto cb = [&mobClient](sysrepo::S_Session session, const char *module_name, const char *xpath, sr_event_t event, uint32_t request_id) {
+                char change_path[MAX_LEN];        
 
-                    auto it = session->get_changes_iter(change_path);
-                    
-                    map <string, string> mapOfNewData;
+                    if (event == SR_EV_DONE)
+                    {                    
+                        snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
 
-                    while (auto change = session->get_change_next(it)) {
+                        auto it = session->get_changes_iter(change_path);
                         
-                        if (change->oper()!= SR_OP_DELETED)
-                        {
-                            string value = change->new_val()->to_string();
-                            value = value.substr((value.find_last_of("=") + 2),(value.length() - value.find_last_of("=") - 2 - 1));
-                            
-                            string leaf = change->new_val()->to_string();
-                            leaf = leaf.substr((leaf.find_last_of("/") + 1),(leaf.find_last_of("=") - leaf.find_last_of("/") - 2));
-                            
-                            mapOfNewData.insert(make_pair(leaf, value));
-                            
-                            mobClient.handleModuleChange(mapOfNewData);
+                        map <string, string> mapOfNewData;
 
-                        }
-                        else
-                        {
-                            cout <<"somthing deleted in data instanse...."<< endl;
-                        }
-                }
-                }
-                
-            return SR_ERR_OK;
-        };
+                        while (auto change = session->get_change_next(it)) {
+                            
+                            if (change->oper()!= SR_OP_DELETED)
+                            {
+                                string value = change->new_val()->to_string();
+                                value = value.substr((value.find_last_of("=") + 2),(value.length() - value.find_last_of("=") - 2 - 1));
+                                
+                                string leaf = change->new_val()->to_string();
+                                leaf = leaf.substr((leaf.find_last_of("/") + 1),(leaf.find_last_of("=") - leaf.find_last_of("/") - 2));
+                                
+                                mapOfNewData.insert(make_pair(leaf, value));
+                                
+                                mobClient.handleModuleChange(mapOfNewData);
 
-        _subscribe->module_change_subscribe("mobile-network", cb, path);
+                            }
+                            else
+                            {
+                                cout <<"somthing deleted in data instanse...."<< endl;
+                            }
+                    }
+                    }
+                    
+                return SR_ERR_OK;
+            };
 
-    
-        return true;    
+            _subscribe->module_change_subscribe("mobile-network", cb, path);
+
+        
+            return true;  
+        }
+        catch(const std::exception& e)
+        {
+            cerr << e.what() << endl;
+            return false;
+        }
 
     };
 
@@ -154,43 +163,50 @@ namespace NetConfAgent_ns
 
     bool NetConfAgent::registerOperData(const string & strXpath,MobileClient_ns::MobileClient &mobClient)
     {
-
-        string str_module_name = strXpath;
-        str_module_name = str_module_name.substr((str_module_name.find_first_of("/") + 1),((str_module_name.find_first_of(":"))-(str_module_name.find_first_of("/")) - 1));
-
-        string str_path = strXpath;
-        str_path = str_path.substr((str_path.find_first_of("/")),((str_path.find_last_of("/"))-(str_path.find_first_of("/"))));   
-        
-        auto cb = [strXpath, &mobClient] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
-        uint32_t request_id, libyang::S_Data_Node &parent) 
+        try
         {
+            string str_module_name = strXpath;
+            str_module_name = str_module_name.substr((str_module_name.find_first_of("/") + 1),((str_module_name.find_first_of(":"))-(str_module_name.find_first_of("/")) - 1));
+
+            string str_path = strXpath;
+            str_path = str_path.substr((str_path.find_first_of("/")),((str_path.find_last_of("/"))-(str_path.find_first_of("/"))));   
             
-            cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << strXpath << "\" DATA ==========\n" << endl;
+            auto cb = [strXpath, &mobClient] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
+            uint32_t request_id, libyang::S_Data_Node &parent) 
+            {
+                
+                cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << strXpath << "\" DATA ==========\n" << endl;
+                
+                string str_value;
+                mobClient.handleOperData(str_value);
+
+
+                const char* value = str_value.c_str();
+                const char* xpath = strXpath.c_str();
+
+
+                libyang::S_Context ctx = session->get_context();
+                libyang::S_Module mod = ctx->get_module(module_name);
+
+                parent->new_path(ctx, xpath, value, LYD_ANYDATA_CONSTSTRING, 0);
+
+                return SR_ERR_OK;
+            };
+
+
             
-            string str_value;
-            mobClient.handleOperData(str_value);
-
-
-            const char* value = str_value.c_str();
-            const char* xpath = strXpath.c_str();
-
-
-            libyang::S_Context ctx = session->get_context();
-            libyang::S_Module mod = ctx->get_module(module_name);
-
-            parent->new_path(ctx, xpath, value, LYD_ANYDATA_CONSTSTRING, 0);
-
-            return SR_ERR_OK;
-        };
-
-
+            const char* module_name = str_module_name.c_str();  
+            const char* path = str_path.c_str();
         
-        const char* module_name = str_module_name.c_str();  
-        const char* path = str_path.c_str();
-       
-        _subscribe->oper_get_items_subscribe(module_name, cb, path);
-        
-        return true;
+            _subscribe->oper_get_items_subscribe(module_name, cb, path);
+            
+            return true;
+        }
+        catch(const std::exception& e)
+        {
+            cerr << e.what() << endl;
+            return false;
+        }
 
     };
 

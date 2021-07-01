@@ -7,9 +7,11 @@ using namespace std;
 class Invoker
 {
     public:
+
         void interpetCmdInput();
 
     private:
 
-       /// shared_ptr<MobileClient_ns::MobileClient> _MobClient;
+       //shared_ptr<MobileClient_ns::MobileClient> _MobClient;
+       
 };
