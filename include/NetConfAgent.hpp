@@ -10,23 +10,25 @@ using namespace std;
 namespace MobileClient_ns
 {
     class MobileClient;
-};
+}
 
 namespace NetConfAgent_ns
 {   
     class NetConfAgent
     {
     public:
+
+        virtual ~NetConfAgent() {};
         /*
         *@brief starts sysrepo session
         *
         *@return true if succedes, otherwise- false
         */
-        bool initSysrepo();
+        virtual bool initSysrepo();
         /*
         *@brief closes sysrepo session
         */
-        bool closeSysrepo();
+        virtual bool closeSysrepo();
         /*
         *@brief prints all changed in the selected YANG module to console
         *
@@ -34,7 +36,7 @@ namespace NetConfAgent_ns
         * 
         *@return true if succedes, otherwise- false
         */
-        bool subscribeForModelChandes(const string & strXpath, MobileClient_ns::MobileClient &mobClient);
+        virtual bool subscribeForModelChandes(const string & strXpath, MobileClient_ns::MobileClient &mobClient);
         /*
         *@brief puts data from provided xpath into string
         *
@@ -44,7 +46,7 @@ namespace NetConfAgent_ns
         * 
         *@return true if succedes, otherwise- false
         */
-        bool fetchData(const string &str_xpath, string &str_value, sr_datastore_t ds = SR_DS_RUNNING);
+        virtual bool fetchData(const string &str_xpath, string &str_value, sr_datastore_t ds = SR_DS_RUNNING);
         /*
         *@brief changes or deletes data value in the selected xpath (config-true data only)
         *
@@ -56,7 +58,7 @@ namespace NetConfAgent_ns
         * 
         *@return true if succedes, otherwise- false
         */        
-        bool changeData(const string &str_xpath, const string &str_entry, const string &param = "change");
+        virtual bool changeData(const string &str_xpath, const string &str_entry, const string &param = "change");
         /*
         *@brief registers on operational data provision
         *
@@ -66,12 +68,12 @@ namespace NetConfAgent_ns
         * 
         *@return true if succedes, otherwise- false
         */
-        bool registerOperData(const string & strXpath, MobileClient_ns::MobileClient &mobClient);
+        virtual bool registerOperData(const string & strXpath, MobileClient_ns::MobileClient &mobClient);
         /*
         *@brief sends notification to Sysrepo. DEPENDED on mobile-network.yang
         *
         */
-        bool notifySysrepo(const string &str_value1, const string &str_value2);
+        virtual bool notifySysrepo(const string &str_value1, const string &str_value2);
         /*
         *@brief subscribes and handles RPC. HARDCODED and DEPENDED mobile-network.yang
         *
@@ -79,7 +81,7 @@ namespace NetConfAgent_ns
         * 
         *@return true if succedes, otherwise- false
         */
-        bool subscribeForRpc(const string &str_rpc_xpath, const string &str_value);
+        virtual bool subscribeForRpc(const string &str_rpc_xpath, const string &str_value);
 
     private:
 

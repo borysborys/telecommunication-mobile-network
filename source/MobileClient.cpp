@@ -25,9 +25,9 @@ namespace
         return ("/mobile-network:core/subscribers[number=\"" + number + "\"]/incomingNumber");
     };
   
-  //  map<string, vector<string>> mymap;        boost -ok
+  
 
-    vector<vector<string>> stateDiagram =
+    vector<vector<string>> stateDiagram =   //possible to replace with "map<string, vector<string>>"    boost -ok to use
     {   //      state       |       operation       |       is allowed?                     //
 
         {       "idle"      ,       "call"          ,       "YES"                           },
@@ -96,15 +96,13 @@ namespace MobileClient_ns
         }
     };
 
-     void MobileClient::registerClient( string &number)
+     void MobileClient::registerClient(const string &number)     //to const
     {   
         if (stateCheck(_state, "register", stateDiagram))
         {
             _number = number;
 
             _state = "idle";
-
-            //_agent = make_unique<NetConfAgent_ns::NetConfAgent>();      ///TODO : put to contructor
 
             if(_agent->initSysrepo())
             {
@@ -159,7 +157,7 @@ namespace MobileClient_ns
         }
     };
 
-    void MobileClient::call(string & friendNumber)
+    void MobileClient::call(const string & friendNumber)
     {
         if (stateCheck(_state, "call", stateDiagram))
         {         
@@ -210,15 +208,14 @@ namespace MobileClient_ns
             _agent->changeData(concatXpathToState(_incomingNumber), "idle");
 
             //case : you are the caller and rejecting
-            _agent->changeData(concatXpathToIncomingNumber(_friendNumber), "", "delete");   /// TODO: CHANGE DATA- DELETE ITEM
-            _agent->changeData(concatXpathToState(_friendNumber), "idle");  
-            _agent->changeData(concatXpathToIncomingNumber(_number), "", "delete");        /// TODO: CHANGE DATA- DELETE ITEM
+            _agent->changeData(concatXpathToIncomingNumber(_friendNumber), "", "delete");     
+            _agent->changeData(concatXpathToIncomingNumber(_number), "", "delete");       
             
             ///in any way:
             _agent->changeData(concatXpathToState(_number), "idle");                       
 
         }        
-    };
+    }
 
     void MobileClient::unregister()
     {
@@ -229,7 +226,6 @@ namespace MobileClient_ns
             _agent->changeData(concatXpathToNumberKey(_number), "", "delete");
 
             _agent->closeSysrepo();
-            _agent.reset();
             
             _name.erase();
             _number.erase();
@@ -243,4 +239,25 @@ namespace MobileClient_ns
     string MobileClient::getName(){
         return _name;
     }
-};
+
+    void MobileClient::setState(const string &state)
+    {
+        _state = state; 
+    }
+
+    string MobileClient::getState()
+    {
+        return _state;
+    }
+
+    void MobileClient::setIncomingNumber(const string &incomingNumber)
+    {
+        _incomingNumber = incomingNumber; 
+    }
+
+    string MobileClient::getIncomingNumber()
+    {
+        return _incomingNumber;
+    }
+
+}

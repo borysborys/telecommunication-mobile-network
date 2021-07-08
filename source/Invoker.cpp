@@ -7,9 +7,6 @@ using namespace std;
 
 namespace
 {
-
-
-
     map <string, int> mapTokenArg = 
     {   //    token         | amount of args //         
         {   "register"      ,       1       },
@@ -22,11 +19,10 @@ namespace
 
     };
 
-
-shared_ptr<MobileClient_ns::MobileClient> _MobClient (new MobileClient_ns::MobileClient);
+    shared_ptr<MobileClient_ns::MobileClient> _MobClient (new MobileClient_ns::MobileClient);
 
     map<string, Command*> mapTokenCommand =
-    {   //    token         |       actual command              //  
+    {   //    token         |       actual command                     //  
         {   "register"      ,       new registerCommand(_MobClient)    },
         {   "name"          ,       new nameCommand(_MobClient)        },
         {   "call"          ,       new callCommand(_MobClient)        },
@@ -34,7 +30,6 @@ shared_ptr<MobileClient_ns::MobileClient> _MobClient (new MobileClient_ns::Mobil
         {   "reject"        ,       new rejectCommand(_MobClient)      },
         {   "unregister"    ,       new unregisterCommand(_MobClient)  }
     };
-
 
 
     void parseInput(vector<string> &input)

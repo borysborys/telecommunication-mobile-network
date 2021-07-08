@@ -6,7 +6,7 @@ using namespace std;
 Command::Command( shared_ptr<MobileClient_ns::MobileClient> ptrMobileClient)
 {
     _mobClient = ptrMobileClient;    
-};
+}
 
 void Command::setArgs(vector <string> argsVec)
 {
@@ -22,8 +22,7 @@ void  registerCommand :: execute()
         cout << "something went wrong =("<< endl;
     };
 
-};
-
+}
 
 void nameCommand :: execute()
 {
@@ -33,7 +32,7 @@ void nameCommand :: execute()
     else {
         cout << "something went wrong =("<< endl;
     };
-};
+}
 
 void callCommand::execute()
 {
@@ -43,19 +42,19 @@ void callCommand::execute()
     else {
         cout << "something went wrong =("<< endl;
     };
-};
+}
 
 void answerCommand::execute()
 {
     _mobClient ->answer();
-};
+}
 
 void rejectCommand::execute()
 {
     _mobClient ->reject();
-};
+}
 
 void unregisterCommand::execute()
 {
     _mobClient ->unregister();
-};
+}

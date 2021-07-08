@@ -7,14 +7,15 @@ libpcre = dependency('libpcre', required : true)
 sysrepo = dependency('sysrepo', required : true)
 libyang = dependency ('libyang', required : true)
 
-#gtest_proj = subproject('gtest')
+gtest_proj = subproject('gtest')
 
-#gtest_dep = gtest_proj.get_variable('gtest_dep')
-#gmock_dep = gtest_proj.get_variable('gmock_dep')
+gtest_dep = gtest_proj.get_variable('gtest_main_dep')
+
+gmock_dep = gtest_proj.get_variable('gmock_dep')
 
 
-gtest_dep = dependency ('gtest', main : true, required : true)     
-#gmock_dep = dependency ('gmock', main : true, required : true)     
+#gtest_dep = dependency ('gtest', main : true, required : true)     
+#gmock_dep = dependency ('gmock', main : false, required : true)     
 
 
 subdir ('libyangextension/source')
@@ -108,7 +109,7 @@ dependencies : [sysrepo, commutator_dep],
 tests = executable (
     'tests', 
     sources : test_sources_with_path,
-    dependencies : [sysrepo, commutator_dep, gtest_dep],
+    dependencies : [sysrepo, commutator_dep, gtest_dep, gmock_dep],
         install : true,
         link_args: ['-lpthread', '-ldl'],
         cpp_args : '-pthread',
