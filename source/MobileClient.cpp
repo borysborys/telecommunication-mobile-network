@@ -194,10 +194,17 @@ namespace MobileClient_ns
     {
         if (stateCheck(_state, "answer", stateDiagram))
         {
-            _agent->changeData(concatXpathToState(_incomingNumber), "busy");
-            _agent->changeData(concatXpathToState(_number), "busy");
+            _agent->fetchData(concatXpathToIncomingNumber(_number),_incomingNumber);
+            if(_incomingNumber != "")
+            {
+                _agent->changeData(concatXpathToState(_incomingNumber), "busy");
+                _agent->changeData(concatXpathToState(_number), "busy");
+            }
+            else
+            {
+                cout << "not allowed" << endl;
+            }
         }
-
     };
 
     void MobileClient::reject()

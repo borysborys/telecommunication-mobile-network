@@ -138,6 +138,10 @@ TEST_F(MobileClient_test, shouldSuccedToAnswer)
     _mobileClient->setState("active");
     _mobileClient->setIncomingNumber("102");
 
+    const string myxpathIncomingNumber = "/mobile-network:core/subscribers[number=\"101\"]/incomingNumber";
+    EXPECT_CALL(*_mock, fetchData(myxpathIncomingNumber,_,_))
+        .WillOnce(Return(true));
+
     const string freindxpathState = "/mobile-network:core/subscribers[number=\"102\"]/state";
     EXPECT_CALL(*_mock, changeData(freindxpathState,"busy",_))
         .WillOnce(Return(true));

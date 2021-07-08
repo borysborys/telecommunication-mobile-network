@@ -93,6 +93,7 @@ void Invoker::interpetCmdInput(){
         {   
             if (input[0] == "exit")
             {
+                mapTokenCommand["unregister"]->execute();
                 break;
             };
 
